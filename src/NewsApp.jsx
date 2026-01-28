@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
 function cx(...classes) {
@@ -45,11 +45,48 @@ function ImageWithFallback({
   );
 }
 
+const ARTICLES = [
+  { id: 1, category: 'World', title: "'In mutually convenient manner': Can Russia-India-China troika be revived? MEA responds to Russia's push", hasImage: true },
+  { id: 2, category: 'Tech', title: 'Google DeepMind unveils Gemini 3.0 with real-time video understanding capabilities', hasGrid: true },
+  { id: 3, category: 'India', title: 'Budget 2026: FM Sitharaman announces major tax relief for middle class, new slabs effective April', hasImage: true },
+  { id: 4, category: 'Sports', title: 'IPL 2026 mega auction: CSK retains Dhoni as mentor, picks 3 uncapped Indian stars', hasGrid: true },
+  { id: 5, category: 'Business', title: 'Sensex crosses 95,000 for the first time as FII inflows surge to record highs', hasImage: true },
+  { id: 6, category: 'World', title: 'EU passes landmark AI regulation bill requiring transparency for all foundation models', hasGrid: true },
+  { id: 7, category: 'Science', title: 'ISRO Gaganyaan crew completes orbital mission, lands safely in Bay of Bengal', hasImage: true },
+  { id: 8, category: 'Entertainment', title: "Shah Rukh Khan's 'King' breaks all opening day records, earns ₹125 crore worldwide", hasGrid: true },
+  { id: 9, category: 'India', title: 'Delhi-Mumbai expressway fully operational: Travel time cut to 12 hours, toll rates announced', hasImage: true },
+  { id: 10, category: 'Tech', title: 'Apple Intelligence expands to India with Hindi, Tamil, and 8 more regional language support', hasGrid: true },
+  { id: 11, category: 'Health', title: 'WHO declares new mpox variant under monitoring after cases reported in Southeast Asia', hasImage: true },
+  { id: 12, category: 'Business', title: 'Reliance Jio launches satellite broadband service at ₹499/month, targets rural India', hasGrid: true },
+  { id: 13, category: 'World', title: 'Trump proposes 60% tariff on Chinese EVs, Beijing warns of retaliatory measures', hasImage: true },
+  { id: 14, category: 'Sports', title: "India women's cricket team wins inaugural T20 Champions Trophy, beats Australia in final", hasGrid: true },
+  { id: 15, category: 'India', title: 'Supreme Court upholds new criminal law reforms, sets implementation timeline for states', hasImage: true },
+  { id: 16, category: 'Tech', title: 'OpenAI releases GPT-5 with PhD-level reasoning, available free for education sector', hasGrid: true },
+  { id: 17, category: 'Entertainment', title: 'Dune: Part Three announced by Denis Villeneuve, filming begins in Jordan this summer', hasImage: true },
+  { id: 18, category: 'Science', title: 'NASA confirms water ice deposits on lunar south pole, boosts Artemis mission plans', hasGrid: true },
+  { id: 19, category: 'Business', title: 'Tata Motors overtakes Hyundai as India second largest carmaker by volume', hasImage: true },
+  { id: 20, category: 'World', title: 'Ukraine and Russia agree to 90-day ceasefire brokered by India and Turkey at UN summit', hasGrid: true },
+];
+
+const GRID_IMAGES = [
+  ['https://images.unsplash.com/photo-1523995462485-3d171b5c8fa9?w=200&h=150&fit=crop', 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=200&h=150&fit=crop'],
+  ['https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=200&h=150&fit=crop', 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=200&h=150&fit=crop'],
+  ['https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200&h=150&fit=crop', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200&h=150&fit=crop'],
+  ['https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=200&h=150&fit=crop', 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=200&h=150&fit=crop'],
+  ['https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=200&h=150&fit=crop', 'https://images.unsplash.com/photo-1461896836934-bd45ba3b23c0?w=200&h=150&fit=crop'],
+];
+
 export default function NewsApp() {
   const [scrollY, setScrollY] = useState(0);
   const [isNewsFullScreen, setIsNewsFullScreen] = useState(false);
-  const [talkOpen, setTalkOpen] = useState(false);
+  const [talkOpen, setTalkOpen] = useState(true);
+  const [pillMessage, setPillMessage] = useState(null);
+  const [dismissedIds, setDismissedIds] = useState([]);
+  const dismissCountRef = useRef(0);
+  const pillTimerRef = useRef(null);
   const containerRef = useRef(null);
+
+  const pastCarousel = scrollY > 150;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -61,9 +98,6 @@ export default function NewsApp() {
 
       if (scrollTop > 300) setIsNewsFullScreen(true);
       else setIsNewsFullScreen(false);
-
-      // Auto-collapse "Talk to us" when scrolled past carousel
-      if (scrollTop > 150) setTalkOpen(false);
     };
 
     handleScroll();
@@ -71,16 +105,49 @@ export default function NewsApp() {
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // When past carousel, auto-collapse. When back above, auto-expand.
+  useEffect(() => {
+    if (pastCarousel) {
+      setTalkOpen(false);
+    } else {
+      setTalkOpen(true);
+    }
+  }, [pastCarousel]);
+
+  const handleDismiss = useCallback((id) => {
+    setDismissedIds((prev) => [...prev, id]);
+    dismissCountRef.current += 1;
+
+    if (dismissCountRef.current === 3) {
+      dismissCountRef.current = 0;
+      setPillMessage('Thanks! Your feedback helps us improve.');
+      setTalkOpen(true);
+
+      if (pillTimerRef.current) clearTimeout(pillTimerRef.current);
+      pillTimerRef.current = setTimeout(() => {
+        setPillMessage(null);
+        setTalkOpen(false);
+      }, 2000);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (pillTimerRef.current) clearTimeout(pillTimerRef.current);
+    };
+  }, []);
+
+  const visibleArticles = useMemo(
+    () => ARTICLES.filter((a) => !dismissedIds.includes(a.id)),
+    [dismissedIds],
+  );
+
   const headerOpacity = Math.max(0, 1 - scrollY / 200);
   const carouselOpacity = Math.max(0, 1 - scrollY / 150);
   const carouselTranslate = Math.min(scrollY * 0.5, 150);
 
-  const articles = useMemo(() => [1, 2, 3, 4, 5], []);
-
   return (
     <div className="h-dvh w-full bg-[#e8d5c4] overflow-hidden">
-
-
       {/* Main Content */}
       <div
         ref={containerRef}
@@ -234,81 +301,92 @@ export default function NewsApp() {
 
           {/* News Articles */}
           <div className="pb-[calc(110px+env(safe-area-inset-bottom))]">
-            {articles.map((item) => (
-              <div key={item} className="px-4 sm:px-6 py-4 border-b border-gray-100">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-sm text-gray-500">World</span>
-                  <button
-                    type="button"
-                    className="px-4 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-700 active:scale-[0.98]"
-                  >
-                    Follow
-                  </button>
-                  <button type="button" className="ml-auto p-2 -mr-2 rounded-full active:scale-[0.98]" aria-label="Dismiss">
-                    <X className="w-5 h-5 text-gray-400" />
-                  </button>
-                </div>
-
-                <div className="flex gap-3 items-start">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-[17px] sm:text-lg font-semibold leading-snug text-black">
-                      {"'In mutually convenient manner': Can Russia-India-China troika be revived? MEA responds to Russia's push"}
-                    </h3>
+            {visibleArticles.map((article, idx) => {
+              const gridIdx = idx % GRID_IMAGES.length;
+              return (
+                <div key={article.id} className="px-4 sm:px-6 py-4 border-b border-gray-100">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-sm text-gray-500">{article.category}</span>
+                    <button
+                      type="button"
+                      className="px-4 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-700 active:scale-[0.98]"
+                    >
+                      Follow
+                    </button>
+                    <button
+                      type="button"
+                      className="ml-auto p-2 -mr-2 rounded-full active:scale-[0.98]"
+                      aria-label="Dismiss"
+                      onClick={() => handleDismiss(article.id)}
+                    >
+                      <X className="w-5 h-5 text-gray-400" />
+                    </button>
                   </div>
 
-                  {item % 2 === 1 && (
-                    <div className="shrink-0">
+                  <div className="flex gap-3 items-start">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-[17px] sm:text-lg font-semibold leading-snug text-black">
+                        {article.title}
+                      </h3>
+                    </div>
+
+                    {article.hasImage && (
+                      <div className="shrink-0">
+                        <ImageWithFallback
+                          src={`https://images.unsplash.com/photo-${1650000000000 + article.id * 1000000}?w=150&h=100&fit=crop`}
+                          alt="Article"
+                          className="w-28 h-20 sm:w-32 sm:h-24 object-cover rounded-lg bg-gray-100"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {article.hasGrid && (
+                    <div className="mt-3 grid grid-cols-2 gap-2">
                       <ImageWithFallback
-                        src={`https://images.unsplash.com/photo-${1650000000000 + item * 1000000}?w=150&h=100&fit=crop`}
-                        alt="Article"
-                        className="w-28 h-20 sm:w-32 sm:h-24 object-cover rounded-lg bg-gray-100"
+                        src={GRID_IMAGES[gridIdx][0]}
+                        alt="Article media 1"
+                        className="w-full h-28 sm:h-32 object-cover rounded-lg"
+                      />
+                      <ImageWithFallback
+                        src={GRID_IMAGES[gridIdx][1]}
+                        alt="Article media 2"
+                        className="w-full h-28 sm:h-32 object-cover rounded-lg"
                       />
                     </div>
                   )}
                 </div>
-
-                {item % 2 === 0 && (
-                  <div className="mt-3 grid grid-cols-2 gap-2">
-                    <ImageWithFallback
-                      src="https://images.unsplash.com/photo-1523995462485-3d171b5c8fa9?w=200&h=150&fit=crop"
-                      alt="Article media 1"
-                      className="w-full h-28 sm:h-32 object-cover rounded-lg"
-                    />
-                    <ImageWithFallback
-                      src="https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=200&h=150&fit=crop"
-                      alt="Article media 2"
-                      className="w-full h-28 sm:h-32 object-cover rounded-lg"
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
-
-          {/* Talk to us - slides from right wall */}
-          {/* Talk to us - slides from right wall */}
-          <button
-            type="button"
-            onClick={() => setTalkOpen((v) => !v)}
-            className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-0 bg-blue-500 text-white rounded-l-full flex items-center shadow-md active:scale-[0.98] overflow-hidden z-20"
-            style={{
-              transform: talkOpen
-                ? 'translateX(0)'
-                : 'translateX(calc(100% - 24px))',
-              transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)',
-            }}
-          >
-            <span className="w-6 h-9 flex items-center justify-center shrink-0 text-white/90 text-xs font-bold">
-              {talkOpen ? '\u203A' : '\u2039'}
-            </span>
-            <div className="flex items-center gap-1.5 pr-3 py-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              <span className="text-xs font-semibold whitespace-nowrap">Talk to us</span>
-            </div>
-          </button>
         </div>
+
+        {/* Talk to us pill - slides from right wall */}
+        <button
+          type="button"
+          onClick={() => {
+            if (!pillMessage) setTalkOpen((v) => !v);
+          }}
+          className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-0 bg-blue-500 text-white rounded-l-full flex items-center shadow-md active:scale-[0.98] overflow-hidden z-20"
+          style={{
+            transform: talkOpen
+              ? 'translateX(0)'
+              : 'translateX(calc(100% - 24px))',
+            transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)',
+          }}
+        >
+          <span className="w-6 h-9 flex items-center justify-center shrink-0 text-white/90 text-xs font-bold">
+            {talkOpen ? '\u203A' : '\u2039'}
+          </span>
+          <div className="flex items-center gap-1.5 pr-3 py-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <span className="text-xs font-semibold whitespace-nowrap">
+              {pillMessage || 'Talk to us'}
+            </span>
+          </div>
+        </button>
 
         {/* Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 pb-[calc(8px+env(safe-area-inset-bottom))]">
@@ -340,4 +418,3 @@ export default function NewsApp() {
     </div>
   );
 }
-
