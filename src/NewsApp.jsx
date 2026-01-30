@@ -82,9 +82,12 @@ export default function NewsApp() {
   const [talkOpen, setTalkOpen] = useState(true);
   const [pillMessage, setPillMessage] = useState(null);
   const [dismissedIds, setDismissedIds] = useState([]);
+  const [orbMode, setOrbMode] = useState(null); // null | 'stories' | 'gratitude'
   const dismissCountRef = useRef(0);
   const pillTimerRef = useRef(null);
   const containerRef = useRef(null);
+  const idleTimerRef = useRef(null);
+  const storiesShownRef = useRef(false);
 
   const pastCarousel = scrollY > 150;
 
@@ -98,6 +101,21 @@ export default function NewsApp() {
 
       if (scrollTop > 300) setIsNewsFullScreen(true);
       else setIsNewsFullScreen(false);
+
+      // Reset idle timer on every scroll event
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+
+      // Start 3s idle timer when scrolled past carousel
+      if (scrollTop > 150 && !storiesShownRef.current) {
+        idleTimerRef.current = setTimeout(() => {
+          if (!storiesShownRef.current) {
+            storiesShownRef.current = true;
+            setPillMessage(null);
+            setOrbMode('stories');
+            setTalkOpen(true);
+          }
+        }, 3000);
+      }
     };
 
     handleScroll();
@@ -108,11 +126,17 @@ export default function NewsApp() {
   // When past carousel, auto-collapse. When back above, auto-expand.
   useEffect(() => {
     if (pastCarousel) {
-      setTalkOpen(false);
+      // Don't collapse if showing a special mode
+      if (!orbMode && !pillMessage) setTalkOpen(false);
     } else {
-      setTalkOpen(true);
+      if (orbMode !== 'gratitude') {
+        setTalkOpen(true);
+        setOrbMode(null);
+        storiesShownRef.current = false;
+      }
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     }
-  }, [pastCarousel]);
+  }, [pastCarousel, orbMode, pillMessage]);
 
   const handleDismiss = useCallback((id) => {
     setDismissedIds((prev) => [...prev, id]);
@@ -134,6 +158,7 @@ export default function NewsApp() {
   useEffect(() => {
     return () => {
       if (pillTimerRef.current) clearTimeout(pillTimerRef.current);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
   }, []);
 
@@ -145,6 +170,20 @@ export default function NewsApp() {
   const headerOpacity = Math.max(0, 1 - scrollY / 200);
   const carouselOpacity = Math.max(0, 1 - scrollY / 150);
   const carouselTranslate = Math.min(scrollY * 0.5, 150);
+
+  // Orb display properties
+  const orbText = pillMessage
+    || (orbMode === 'stories' ? 'Fresh stories picked for you'
+      : orbMode === 'gratitude' ? 'There you go! Happy reading'
+      : 'Talk to us');
+  const orbTextSmall = !!pillMessage || orbMode === 'gratitude';
+  const orbShowChevron = !pillMessage && !orbMode;
+  const orbContentKey = pillMessage || orbMode || 'default';
+  const orbExpandedWidth = pillMessage
+    ? '320px'
+    : orbMode === 'stories' || orbMode === 'gratitude'
+      ? '280px'
+      : '180px';
 
   return (
     <div className="h-dvh w-full bg-[#e8d5c4] overflow-hidden">
@@ -365,24 +404,36 @@ export default function NewsApp() {
         <button
           type="button"
           onClick={() => {
-            if (!pillMessage) setTalkOpen((v) => !v);
+            if (pillMessage || orbMode === 'gratitude') return;
+
+            if (orbMode === 'stories') {
+              containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+              setOrbMode('gratitude');
+              if (pillTimerRef.current) clearTimeout(pillTimerRef.current);
+              pillTimerRef.current = setTimeout(() => {
+                setOrbMode(null);
+              }, 2500);
+              return;
+            }
+
+            setTalkOpen((v) => !v);
           }}
           className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-0 z-20"
           style={{
-            width: talkOpen ? (pillMessage ? '320px' : '180px') : '56px',
+            width: talkOpen ? orbExpandedWidth : '56px',
             height: '56px',
             borderRadius: '28px',
             transform: talkOpen ? 'translateX(-12px)' : 'translateX(28px)',
             transition:
               'width 0.5s cubic-bezier(0.34,1.56,0.64,1), transform 0.5s cubic-bezier(0.34,1.56,0.64,1), background-color 0.4s ease, box-shadow 0.4s ease, color 0.3s ease',
             backgroundColor: talkOpen
-              ? pillMessage
+              ? (pillMessage || orbMode === 'gratitude')
                 ? '#00d68f'
                 : '#2563eb'
               : '#ffffff',
             color: talkOpen ? '#ffffff' : '#1e1e1e',
             boxShadow: talkOpen
-              ? pillMessage
+              ? (pillMessage || orbMode === 'gratitude')
                 ? '0 4px 24px rgba(0,214,143,0.5), 0 0 40px rgba(0,214,143,0.2)'
                 : '0 4px 24px rgba(37,99,235,0.5), 0 0 40px rgba(37,99,235,0.2)'
               : undefined,
@@ -494,34 +545,30 @@ export default function NewsApp() {
               zIndex: 1,
             }}
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
+            {/* Icon changes based on mode */}
+            {orbMode === 'stories' ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+            ) : orbMode === 'gratitude' ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7L12 16.4 5.7 21l2.3-7L2 9.4h7.6z" />
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            )}
             <span
-              className={
-                pillMessage ? 'text-xs font-medium' : 'text-sm font-bold'
-              }
+              key={orbContentKey}
+              className={orbTextSmall ? 'text-xs font-medium' : 'text-sm font-bold'}
+              style={{ animation: 'orb-text-in 0.3s ease-out' }}
             >
-              {pillMessage || 'Talk to us'}
+              {orbText}
             </span>
-            {!pillMessage && (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                aria-hidden="true"
-              >
+            {orbShowChevron && (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             )}
