@@ -361,41 +361,160 @@ export default function NewsApp() {
           </div>
         </div>
 
-        {/* Talk to us pill - slides from right wall */}
+        {/* Siri Orb - half-circle peeking from right edge */}
         <button
           type="button"
           onClick={() => {
             if (!pillMessage) setTalkOpen((v) => !v);
           }}
-          className={cx(
-            'fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-0 rounded-l-full flex items-center overflow-hidden z-20',
-            pillMessage
-              ? 'bg-emerald-500 text-white shadow-sm'
-              : 'bg-indigo-500 text-white shadow-lg ring-2 ring-indigo-300/60 ring-offset-2 ring-offset-white active:scale-[0.97] transition-transform'
-          )}
+          className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-0 z-20 text-white"
           style={{
-            transform: talkOpen
-              ? 'translateX(0)'
-              : 'translateX(calc(100% - 24px))',
-            transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)',
+            width: talkOpen ? (pillMessage ? '320px' : '180px') : '56px',
+            height: '56px',
+            borderRadius: '28px',
+            transform: talkOpen ? 'translateX(-12px)' : 'translateX(28px)',
+            transition:
+              'width 0.5s cubic-bezier(0.34,1.56,0.64,1), transform 0.5s cubic-bezier(0.34,1.56,0.64,1), background-color 0.4s ease, box-shadow 0.4s ease',
+            backgroundColor: talkOpen
+              ? pillMessage
+                ? '#10b981'
+                : '#3b82f6'
+              : '#0d0d1f',
+            boxShadow: talkOpen
+              ? pillMessage
+                ? '0 4px 20px rgba(16,185,129,0.35)'
+                : '0 4px 20px rgba(59,130,246,0.35)'
+              : '0 0 20px rgba(99,102,241,0.5), 0 0 40px rgba(139,92,246,0.2)',
+            overflow: 'hidden',
+            cursor: 'pointer',
           }}
         >
-          {/* Small tab visible when collapsed */}
-          <div className="w-6 h-full flex items-center justify-center shrink-0 pl-2">
-            <div className="w-1 h-6 bg-white/50 rounded-full" />
+          {/* Siri-like animated blobs */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 'inherit',
+              overflow: 'hidden',
+              opacity: talkOpen ? 0 : 1,
+              transition: 'opacity 0.4s ease',
+              pointerEvents: 'none',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                width: '28px',
+                height: '28px',
+                background:
+                  'radial-gradient(circle, rgba(99,102,241,0.9) 0%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(8px)',
+                top: '8px',
+                left: '4px',
+                animation: 'siri-1 3s ease-in-out infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                width: '24px',
+                height: '24px',
+                background:
+                  'radial-gradient(circle, rgba(236,72,153,0.85) 0%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(7px)',
+                top: '20px',
+                left: '14px',
+                animation: 'siri-2 4s ease-in-out infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                width: '26px',
+                height: '26px',
+                background:
+                  'radial-gradient(circle, rgba(6,182,212,0.8) 0%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(7px)',
+                top: '4px',
+                left: '18px',
+                animation: 'siri-3 3.5s ease-in-out infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                width: '22px',
+                height: '22px',
+                background:
+                  'radial-gradient(circle, rgba(139,92,246,0.85) 0%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(6px)',
+                top: '24px',
+                left: '2px',
+                animation: 'siri-4 4.5s ease-in-out infinite',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                width: '20px',
+                height: '20px',
+                background:
+                  'radial-gradient(circle, rgba(16,185,129,0.75) 0%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(6px)',
+                top: '12px',
+                left: '24px',
+                animation: 'siri-1 5s ease-in-out infinite reverse',
+              }}
+            />
           </div>
-          <div className="flex items-center gap-2 pr-5 py-3">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+
+          {/* Expanded content - scales out from the orb */}
+          <div
+            className="flex items-center gap-2 w-full justify-center"
+            style={{
+              opacity: talkOpen ? 1 : 0,
+              transform: talkOpen ? 'scale(1)' : 'scale(0.6)',
+              transformOrigin: 'right center',
+              transition: 'opacity 0.25s ease, transform 0.3s ease',
+              transitionDelay: talkOpen ? '0.2s' : '0s',
+              whiteSpace: 'nowrap',
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
-            <span className={cx(
-              'whitespace-nowrap',
-              pillMessage ? 'text-xs font-medium' : 'text-sm font-bold'
-            )}>
+            <span
+              className={
+                pillMessage ? 'text-xs font-medium' : 'text-sm font-bold'
+              }
+            >
               {pillMessage || 'Talk to us'}
             </span>
             {!pillMessage && (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                aria-hidden="true"
+              >
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             )}
