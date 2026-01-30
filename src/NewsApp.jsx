@@ -367,19 +367,20 @@ export default function NewsApp() {
           onClick={() => {
             if (!pillMessage) setTalkOpen((v) => !v);
           }}
-          className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-0 z-20 text-white"
+          className="fixed bottom-[calc(76px+env(safe-area-inset-bottom))] right-0 z-20"
           style={{
             width: talkOpen ? (pillMessage ? '320px' : '180px') : '56px',
             height: '56px',
             borderRadius: '28px',
             transform: talkOpen ? 'translateX(-12px)' : 'translateX(28px)',
             transition:
-              'width 0.5s cubic-bezier(0.34,1.56,0.64,1), transform 0.5s cubic-bezier(0.34,1.56,0.64,1), background-color 0.4s ease, box-shadow 0.4s ease',
+              'width 0.5s cubic-bezier(0.34,1.56,0.64,1), transform 0.5s cubic-bezier(0.34,1.56,0.64,1), background-color 0.4s ease, box-shadow 0.4s ease, color 0.3s ease',
             backgroundColor: talkOpen
               ? pillMessage
                 ? '#00d68f'
                 : '#2563eb'
-              : '#050510',
+              : '#ffffff',
+            color: talkOpen ? '#ffffff' : '#1e1e1e',
             boxShadow: talkOpen
               ? pillMessage
                 ? '0 4px 24px rgba(0,214,143,0.5), 0 0 40px rgba(0,214,143,0.2)'
@@ -402,76 +403,76 @@ export default function NewsApp() {
               pointerEvents: 'none',
             }}
           >
-            {/* Electric blue */}
+            {/* Vivid blue */}
             <div
               style={{
                 position: 'absolute',
                 width: '32px',
                 height: '32px',
                 background:
-                  'radial-gradient(circle, #818cf8 0%, rgba(99,102,241,0.8) 40%, transparent 70%)',
+                  'radial-gradient(circle, #6366f1 0%, rgba(99,102,241,0.7) 40%, transparent 70%)',
                 borderRadius: '50%',
-                filter: 'blur(5px)',
+                filter: 'blur(4px)',
                 top: '6px',
                 left: '2px',
                 animation: 'siri-1 3s ease-in-out infinite',
               }}
             />
-            {/* Hot magenta */}
+            {/* Hot pink */}
             <div
               style={{
                 position: 'absolute',
                 width: '30px',
                 height: '30px',
                 background:
-                  'radial-gradient(circle, #f472b6 0%, rgba(244,114,182,0.85) 40%, transparent 70%)',
+                  'radial-gradient(circle, #ec4899 0%, rgba(236,72,153,0.75) 40%, transparent 70%)',
                 borderRadius: '50%',
-                filter: 'blur(5px)',
+                filter: 'blur(4px)',
                 top: '18px',
                 left: '12px',
                 animation: 'siri-2 4s ease-in-out infinite',
               }}
             />
-            {/* Neon cyan */}
+            {/* Bright cyan */}
             <div
               style={{
                 position: 'absolute',
                 width: '30px',
                 height: '30px',
                 background:
-                  'radial-gradient(circle, #22d3ee 0%, rgba(34,211,238,0.85) 40%, transparent 70%)',
+                  'radial-gradient(circle, #06b6d4 0%, rgba(6,182,212,0.75) 40%, transparent 70%)',
                 borderRadius: '50%',
-                filter: 'blur(5px)',
+                filter: 'blur(4px)',
                 top: '2px',
                 left: '16px',
                 animation: 'siri-3 3.5s ease-in-out infinite',
               }}
             />
-            {/* Vivid violet */}
+            {/* Rich violet */}
             <div
               style={{
                 position: 'absolute',
                 width: '28px',
                 height: '28px',
                 background:
-                  'radial-gradient(circle, #c084fc 0%, rgba(192,132,252,0.9) 40%, transparent 70%)',
+                  'radial-gradient(circle, #a855f7 0%, rgba(168,85,247,0.8) 40%, transparent 70%)',
                 borderRadius: '50%',
-                filter: 'blur(4px)',
+                filter: 'blur(3px)',
                 top: '22px',
                 left: '0px',
                 animation: 'siri-4 4.5s ease-in-out infinite',
               }}
             />
-            {/* Neon green */}
+            {/* Bright emerald */}
             <div
               style={{
                 position: 'absolute',
                 width: '26px',
                 height: '26px',
                 background:
-                  'radial-gradient(circle, #34d399 0%, rgba(52,211,153,0.85) 40%, transparent 70%)',
+                  'radial-gradient(circle, #10b981 0%, rgba(16,185,129,0.75) 40%, transparent 70%)',
                 borderRadius: '50%',
-                filter: 'blur(4px)',
+                filter: 'blur(3px)',
                 top: '10px',
                 left: '22px',
                 animation: 'siri-1 5s ease-in-out infinite reverse',
