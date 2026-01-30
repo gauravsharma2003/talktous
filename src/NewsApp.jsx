@@ -377,14 +377,15 @@ export default function NewsApp() {
               'width 0.5s cubic-bezier(0.34,1.56,0.64,1), transform 0.5s cubic-bezier(0.34,1.56,0.64,1), background-color 0.4s ease, box-shadow 0.4s ease',
             backgroundColor: talkOpen
               ? pillMessage
-                ? '#10b981'
-                : '#3b82f6'
-              : '#0d0d1f',
+                ? '#00d68f'
+                : '#2563eb'
+              : '#050510',
             boxShadow: talkOpen
               ? pillMessage
-                ? '0 4px 20px rgba(16,185,129,0.35)'
-                : '0 4px 20px rgba(59,130,246,0.35)'
-              : '0 0 20px rgba(99,102,241,0.5), 0 0 40px rgba(139,92,246,0.2)',
+                ? '0 4px 24px rgba(0,214,143,0.5), 0 0 40px rgba(0,214,143,0.2)'
+                : '0 4px 24px rgba(37,99,235,0.5), 0 0 40px rgba(37,99,235,0.2)'
+              : undefined,
+            animation: talkOpen ? 'none' : 'orb-glow 4s ease-in-out infinite',
             overflow: 'hidden',
             cursor: 'pointer',
           }}
@@ -401,73 +402,78 @@ export default function NewsApp() {
               pointerEvents: 'none',
             }}
           >
+            {/* Electric blue */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '32px',
+                height: '32px',
+                background:
+                  'radial-gradient(circle, #818cf8 0%, rgba(99,102,241,0.8) 40%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(5px)',
+                top: '6px',
+                left: '2px',
+                animation: 'siri-1 3s ease-in-out infinite',
+              }}
+            />
+            {/* Hot magenta */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '30px',
+                height: '30px',
+                background:
+                  'radial-gradient(circle, #f472b6 0%, rgba(244,114,182,0.85) 40%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(5px)',
+                top: '18px',
+                left: '12px',
+                animation: 'siri-2 4s ease-in-out infinite',
+              }}
+            />
+            {/* Neon cyan */}
+            <div
+              style={{
+                position: 'absolute',
+                width: '30px',
+                height: '30px',
+                background:
+                  'radial-gradient(circle, #22d3ee 0%, rgba(34,211,238,0.85) 40%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(5px)',
+                top: '2px',
+                left: '16px',
+                animation: 'siri-3 3.5s ease-in-out infinite',
+              }}
+            />
+            {/* Vivid violet */}
             <div
               style={{
                 position: 'absolute',
                 width: '28px',
                 height: '28px',
                 background:
-                  'radial-gradient(circle, rgba(99,102,241,0.9) 0%, transparent 70%)',
+                  'radial-gradient(circle, #c084fc 0%, rgba(192,132,252,0.9) 40%, transparent 70%)',
                 borderRadius: '50%',
-                filter: 'blur(8px)',
-                top: '8px',
-                left: '4px',
-                animation: 'siri-1 3s ease-in-out infinite',
+                filter: 'blur(4px)',
+                top: '22px',
+                left: '0px',
+                animation: 'siri-4 4.5s ease-in-out infinite',
               }}
             />
-            <div
-              style={{
-                position: 'absolute',
-                width: '24px',
-                height: '24px',
-                background:
-                  'radial-gradient(circle, rgba(236,72,153,0.85) 0%, transparent 70%)',
-                borderRadius: '50%',
-                filter: 'blur(7px)',
-                top: '20px',
-                left: '14px',
-                animation: 'siri-2 4s ease-in-out infinite',
-              }}
-            />
+            {/* Neon green */}
             <div
               style={{
                 position: 'absolute',
                 width: '26px',
                 height: '26px',
                 background:
-                  'radial-gradient(circle, rgba(6,182,212,0.8) 0%, transparent 70%)',
+                  'radial-gradient(circle, #34d399 0%, rgba(52,211,153,0.85) 40%, transparent 70%)',
                 borderRadius: '50%',
-                filter: 'blur(7px)',
-                top: '4px',
-                left: '18px',
-                animation: 'siri-3 3.5s ease-in-out infinite',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                width: '22px',
-                height: '22px',
-                background:
-                  'radial-gradient(circle, rgba(139,92,246,0.85) 0%, transparent 70%)',
-                borderRadius: '50%',
-                filter: 'blur(6px)',
-                top: '24px',
-                left: '2px',
-                animation: 'siri-4 4.5s ease-in-out infinite',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                width: '20px',
-                height: '20px',
-                background:
-                  'radial-gradient(circle, rgba(16,185,129,0.75) 0%, transparent 70%)',
-                borderRadius: '50%',
-                filter: 'blur(6px)',
-                top: '12px',
-                left: '24px',
+                filter: 'blur(4px)',
+                top: '10px',
+                left: '22px',
                 animation: 'siri-1 5s ease-in-out infinite reverse',
               }}
             />
