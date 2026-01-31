@@ -123,16 +123,22 @@ export default function QuickAccessPage() {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'ArrowDown' && !hasShownPillRef.current) {
-                hasShownPillRef.current = true;
-                setPillMessage('Access categories instantly');
-                setTalkOpen(true);
+            if (e.key === 'ArrowDown') {
+                // Snap to header
+                containerRef.current?.scrollTo({ top: 420, behavior: 'smooth' });
 
-                if (pillTimerRef.current) clearTimeout(pillTimerRef.current);
-                pillTimerRef.current = setTimeout(() => {
-                    setPillMessage(null);
-                    setTalkOpen(false);
-                }, 3000);
+                // Once per session orb expansion
+                if (!hasShownPillRef.current) {
+                    hasShownPillRef.current = true;
+                    setPillMessage('Access categories instantly');
+                    setTalkOpen(true);
+
+                    if (pillTimerRef.current) clearTimeout(pillTimerRef.current);
+                    pillTimerRef.current = setTimeout(() => {
+                        setPillMessage(null);
+                        setTalkOpen(false);
+                    }, 3000);
+                }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -355,7 +361,14 @@ export default function QuickAccessPage() {
                             )}
                             <button
                                 onClick={() => {
-                                    setExpandedExplore(!expandedExplore);
+                                    const nextExpanded = !expandedExplore;
+                                    setExpandedExplore(nextExpanded);
+
+                                    // Snap to header when expanding
+                                    if (nextExpanded) {
+                                        containerRef.current?.scrollTo({ top: 420, behavior: 'smooth' });
+                                    }
+
                                     if (showCoachMark) {
                                         setShowCoachMark(false);
                                         sessionStorage.setItem('hasShownQuickAccessCoachMark', 'true');
