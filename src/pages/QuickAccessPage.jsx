@@ -95,6 +95,14 @@ export default function QuickAccessPage() {
     const containerRef = useRef(null);
     const pillTimerRef = useRef(null);
     const hasShownPillRef = useRef(false);
+    const [showCoachMark, setShowCoachMark] = useState(false);
+
+    useEffect(() => {
+        const hasShown = sessionStorage.getItem('hasShownQuickAccessCoachMark');
+        if (!hasShown) {
+            setShowCoachMark(true);
+        }
+    }, []);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -320,17 +328,52 @@ export default function QuickAccessPage() {
                             </div>
                         </div>
                         <div className="flex-1" />
-                        <button
-                            onClick={() => setExpandedExplore(!expandedExplore)}
-                            className="p-2 -mr-2 rounded-full hover:bg-gray-50 transition-all active:scale-95"
-                            aria-label="Toggle explore more"
-                        >
-                            {expandedExplore ? (
-                                <ChevronUp className="w-6 h-6 text-black" />
-                            ) : (
-                                <ChevronDown className="w-6 h-6 text-black" />
+                        <div className="relative">
+                            {showCoachMark && (
+                                <>
+                                    {/* Overlay that dims the screen slightly but lets the button shine */}
+                                    <div
+                                        className="fixed inset-0 bg-black/20 z-40 animate-in fade-in duration-500"
+                                        onClick={() => {
+                                            setShowCoachMark(false);
+                                            sessionStorage.setItem('hasShownQuickAccessCoachMark', 'true');
+                                        }}
+                                    />
+
+                                    {/* Tooltip explaining the button */}
+                                    <div className="absolute bottom-full right-0 mb-4 z-50 animate-in slide-in-from-bottom-2 duration-500">
+                                        <div className="bg-blue-600 text-white text-[13px] font-bold px-4 py-2 rounded-xl shadow-xl whitespace-nowrap flex items-center gap-2" style={{ animation: 'tooltip-float 2s ease-in-out infinite' }}>
+                                            <span className="material-icons text-[16px]">info</span>
+                                            Explore more sections
+                                            <div className="absolute top-full right-4 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-blue-600" />
+                                        </div>
+                                    </div>
+
+                                    {/* Pulsing focal ring */}
+                                    <div className="coach-mark-pulse z-50" />
+                                </>
                             )}
-                        </button>
+                            <button
+                                onClick={() => {
+                                    setExpandedExplore(!expandedExplore);
+                                    if (showCoachMark) {
+                                        setShowCoachMark(false);
+                                        sessionStorage.setItem('hasShownQuickAccessCoachMark', 'true');
+                                    }
+                                }}
+                                className={cx(
+                                    "p-2 -mr-2 rounded-full hover:bg-gray-50 transition-all active:scale-95 relative z-50",
+                                    showCoachMark ? "bg-white shadow-lg ring-4 ring-blue-500/20" : ""
+                                )}
+                                aria-label="Toggle explore more"
+                            >
+                                {expandedExplore ? (
+                                    <ChevronUp className="w-6 h-6 text-black" />
+                                ) : (
+                                    <ChevronDown className="w-6 h-6 text-black" />
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     {/* Grid Section - Sticky with Tabs */}
