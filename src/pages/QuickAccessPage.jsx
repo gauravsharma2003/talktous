@@ -94,6 +94,7 @@ export default function QuickAccessPage() {
     const [dismissedIds, setDismissedIds] = useState([]);
     const containerRef = useRef(null);
     const pillTimerRef = useRef(null);
+    const hasShownPillRef = useRef(false);
 
     useEffect(() => {
         const container = containerRef.current;
@@ -114,7 +115,8 @@ export default function QuickAccessPage() {
 
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (e.key === 'ArrowDown') {
+            if (e.key === 'ArrowDown' && !hasShownPillRef.current) {
+                hasShownPillRef.current = true;
                 setPillMessage('Access categories instantly');
                 setTalkOpen(true);
 
@@ -130,7 +132,8 @@ export default function QuickAccessPage() {
     }, []);
 
     useEffect(() => {
-        if (expandedExplore) {
+        if (expandedExplore && !hasShownPillRef.current) {
+            hasShownPillRef.current = true;
             setPillMessage('Access categories instantly');
             setTalkOpen(true);
 
