@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Compass } from 'lucide-react';
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -8,21 +9,21 @@ export default function Layout() {
   return (
     <div className="h-dvh w-full bg-[#e8d5c4] overflow-hidden relative">
       <Outlet />
-      
+
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200 py-2 pb-[calc(8px+env(safe-area-inset-bottom))] z-50">
         <div className="flex justify-around items-center">
-          <button 
+          <button
             onClick={() => navigate('/')}
             className={`flex flex-col items-center transition-colors ${location.pathname === '/' ? 'text-black' : 'text-gray-400'}`}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill={location.pathname === '/' ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" aria-hidden="true">
-               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
             </svg>
             <span className={`text-[10px] mt-1 ${location.pathname === '/' ? 'font-bold' : 'font-medium'}`}>Newsfeed</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={() => navigate('/quick-access')}
             className={`flex flex-col items-center transition-colors ${location.pathname === '/quick-access' ? 'text-black' : 'text-gray-400'}`}
           >
@@ -30,9 +31,17 @@ export default function Layout() {
               <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               <path d="M9 10h6m-3-3v6" />
             </svg>
-            <span className={`text-[10px] mt-1 ${location.pathname === '/quick-access' ? 'font-bold' : 'font-medium'}`}>Quick Access</span>
+            <span className={`text-[10px] mt-1 ${location.pathname === '/quick-access' ? 'font-bold' : 'font-medium'}`}>V1</span>
           </button>
-          
+
+          <button
+            onClick={() => navigate('/quick-access-v2')}
+            className={`flex flex-col items-center transition-colors ${location.pathname === '/quick-access-v2' ? 'text-black' : 'text-gray-400'}`}
+          >
+            <Compass className="w-6 h-6" fill={location.pathname === '/quick-access-v2' ? "currentColor" : "none"} />
+            <span className={`text-[10px] mt-1 ${location.pathname === '/quick-access-v2' ? 'font-bold' : 'font-medium'}`}>V2</span>
+          </button>
+
           <div className="flex flex-col items-center text-gray-400 opacity-50 cursor-not-allowed">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <circle cx="9" cy="21" r="1" />
