@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Menu, X, Compass } from 'lucide-react';
-import gsap from 'gsap';
 
 function cx(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -98,168 +97,91 @@ export default function QuickAccessPageV2() {
     const pillTimerRef = useRef(null);
     const hasShownPillRef = useRef(false);
 
-    // Animation refs for TOI logo animation
-    const morningTextRef = useRef(null);
-    const toiLogoRef = useRef(null);
-    const wormholeBottomRef = useRef(null);
-    const wormholeTopRef = useRef(null);
-    const animationRef = useRef(null);
-
-    // TOI Logo Animation Effect
+    // Animation Effect
     useEffect(() => {
-        const morningText = morningTextRef.current;
-        const toiLogo = toiLogoRef.current;
-        const wormholeBottom = wormholeBottomRef.current;
-        const wormholeTop = wormholeTopRef.current;
+        // Scope variables inside effect to ensure current ref is used
+        const container = containerRef.current;
+        if (!container) return;
 
-        if (!morningText || !toiLogo || !wormholeBottom || !wormholeTop) return;
+        const items = container.querySelectorAll('.animated-item');
+        if (items.length === 0) return;
 
-        const animate = () => {
-            // Recalculate widths on every loop to ensure accuracy after font loads or resizes
-            const morningWidth = morningText.offsetWidth;
-            const toiWidth = toiLogo.offsetWidth;
+        const ENTER_DURATION = 500;
+        const EXIT_DURATION = 500;
+        const HOLD_DURATION = 3000;
+        const GAP_DURATION = 150;
 
-            const tl = gsap.timeline();
+        const enterEasing = 'cubic-bezier(0.22, 1, 0.36, 1)';
+        const exitEasing = 'cubic-bezier(0.55, 0, 1, 0.45)';
 
-            // === MORNING TEXT ENTRANCE ===
-            // Set wormhole width and reset morning text
-            tl.set(wormholeBottom, { width: morningWidth + 'px' });
-            tl.set(morningText, { y: '110%', opacity: 1, scale: 0.98 });
+        let isRunning = true;
+        let currentAnimation = null;
 
-            // Wormhole appears with expansion
-            tl.to(wormholeBottom, {
-                opacity: 1,
-                scaleX: 1.05,
-                duration: 0.25,
-                ease: 'power2.out'
+        function enter(el) {
+            if (!isRunning) return Promise.resolve();
+            const anim = el.animate([
+                { transform: 'translateY(110%)', opacity: 0 },
+                { transform: 'translateY(0%)', opacity: 1 }
+            ], {
+                duration: ENTER_DURATION,
+                easing: enterEasing,
+                fill: 'forwards'
             });
+            currentAnimation = anim;
+            return anim.finished;
+        }
 
-            // Morning text slides up smoothly
-            tl.to(morningText, {
-                y: 0,
-                scale: 1,
-                duration: 0.5,
-                ease: 'power2.out'
-            }, '-=0.15');
-
-            // Wormhole contracts and fades
-            tl.to(wormholeBottom, {
-                opacity: 0,
-                scaleX: 0.9,
-                duration: 0.35,
-                ease: 'power2.in'
-            }, '-=0.3');
-
-            // Hold for 3 seconds
-            tl.to({}, { duration: 3 });
-
-            // === MORNING TEXT EXIT ===
-            // Set wormhole width for exit
-            tl.set(wormholeTop, { width: morningWidth + 'px', scaleX: 0.9 });
-
-            // Wormhole expands at top
-            tl.to(wormholeTop, {
-                opacity: 1,
-                scaleX: 1.05,
-                duration: 0.25,
-                ease: 'power2.out'
+        function exit(el) {
+            if (!isRunning) return Promise.resolve();
+            const anim = el.animate([
+                { transform: 'translateY(0%)', opacity: 1 },
+                { transform: 'translateY(-110%)', opacity: 0 }
+            ], {
+                duration: EXIT_DURATION,
+                easing: exitEasing,
+                fill: 'forwards'
             });
+            currentAnimation = anim;
+            return anim.finished;
+        }
 
-            // Morning text accelerates upward smoothly
-            tl.to(morningText, {
-                y: '-110%',
-                scale: 0.96,
-                duration: 0.5,
-                ease: 'power2.in'
-            }, '-=0.15');
-
-            // Wormhole fades and contracts
-            tl.to(wormholeTop, {
-                opacity: 0,
-                scaleX: 0.9,
-                duration: 0.35,
-                ease: 'power2.in'
-            }, '-=0.35');
-
-            tl.set(morningText, { opacity: 0 });
-
-            // Breathing pause
-            tl.to({}, { duration: 0.15 });
-
-            // === TOI ENTRANCE ===
-            // Set wormhole width and reset TOI
-            tl.set(wormholeBottom, { width: toiWidth + 'px', scaleX: 0.9 });
-            tl.set(toiLogo, { y: '110%', opacity: 1, scale: 0.98 });
-
-            // Wormhole appears with energy
-            tl.to(wormholeBottom, {
-                opacity: 1,
-                scaleX: 1.05,
-                duration: 0.25,
-                ease: 'power2.out'
+        function wait(ms) {
+            return new Promise(r => {
+                if (!isRunning) return;
+                const id = setTimeout(r, ms);
+                // We're essentially attaching the cleanup to the loop logic via closure check
+                // but for strict cancellation we'd need a more robust cancellable promise.
+                // However, checking 'isRunning' after await is sufficient for stopping the loop.
             });
+        }
 
-            // TOI rises smoothly
-            tl.to(toiLogo, {
-                y: 0,
-                scale: 1,
-                duration: 0.5,
-                ease: 'power2.out'
-            }, '-=0.15');
+        async function loop() {
+            while (isRunning) {
+                for (const item of items) {
+                    if (!isRunning) break;
+                    try {
+                        await enter(item);
+                        await wait(HOLD_DURATION);
+                        if (!isRunning) break;
+                        await exit(item);
+                        if (!isRunning) break;
+                        await wait(GAP_DURATION);
+                    } catch (e) {
+                        // Animation interrupted
+                    }
+                }
+            }
+        }
 
-            // Wormhole contracts
-            tl.to(wormholeBottom, {
-                opacity: 0,
-                scaleX: 0.9,
-                duration: 0.35,
-                ease: 'power2.in'
-            }, '-=0.3');
-
-            // Hold for 3 seconds
-            tl.to({}, { duration: 3 });
-
-            // === TOI EXIT ===
-            // Set wormhole width for TOI exit
-            tl.set(wormholeTop, { width: toiWidth + 'px', scaleX: 0.9 });
-
-            // Wormhole opens
-            tl.to(wormholeTop, {
-                opacity: 1,
-                scaleX: 1.05,
-                duration: 0.25,
-                ease: 'power2.out'
-            });
-
-            // TOI accelerates upward smoothly
-            tl.to(toiLogo, {
-                y: '-110%',
-                scale: 0.96,
-                duration: 0.5,
-                ease: 'power2.in'
-            }, '-=0.15');
-
-            // Wormhole fades
-            tl.to(wormholeTop, {
-                opacity: 0,
-                scaleX: 0.9,
-                duration: 0.35,
-                ease: 'power2.in'
-            }, '-=0.35');
-
-            tl.set(toiLogo, { opacity: 0 });
-
-            // Seamless loop - restart immediately
-            tl.eventCallback('onComplete', animate);
-
-            animationRef.current = tl;
-        };
-
-        animate();
+        loop();
 
         return () => {
-            if (animationRef.current) {
-                animationRef.current.kill();
-            }
+            isRunning = false;
+            // Cancel all animations on the items to prevent "ghost" states
+            items.forEach(item => {
+                const animations = item.getAnimations();
+                animations.forEach(anim => anim.cancel());
+            });
         };
     }, []);
 
@@ -323,7 +245,7 @@ export default function QuickAccessPageV2() {
     return (
         <div
             ref={containerRef}
-            className="h-full overflow-y-auto overscroll-contain [scrollbar-width:none] [-ms-overflow-style:none] bg-white"
+            className="h-full overflow-y-auto overscroll-contain [scrollbar-width:none] [-ms-overflow-style:none] bg-white text-black"
             style={{ scrollBehavior: 'smooth' }}
         >
             {/* Header V2 - TOI is the trigger */}
@@ -333,8 +255,11 @@ export default function QuickAccessPageV2() {
                     boxShadow: expandedExplore ? 'none' : '0 1px 0 rgba(0,0,0,0.05)',
                 }}
             >
+                {/*
+                  Animation container matching the reference implementation.
+                */}
                 <div
-                    className="relative h-[60px] w-[320px] overflow-hidden cursor-pointer"
+                    className="relative h-[32px] w-full max-w-[240px] overflow-hidden cursor-pointer"
                     onClick={() => {
                         const newState = !expandedExplore;
                         setMenuAlign('left');
@@ -342,24 +267,33 @@ export default function QuickAccessPageV2() {
                         if (newState) triggerOrbPill();
                     }}
                 >
-                    <div ref={wormholeBottomRef} className="absolute left-0 bottom-0 h-[1px] opacity-0 shadow-[0_0_8px_rgba(255,200,100,0.5)]"
-                        style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 200, 100, 0.6) 20%, rgba(255, 220, 150, 0.8) 50%, rgba(255, 200, 100, 0.6) 80%, transparent 100%)' }}
-                    />
-                    <div ref={wormholeTopRef} className="absolute left-0 top-0 h-[1px] opacity-0 shadow-[0_0_8px_rgba(255,200,100,0.5)]"
-                        style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 200, 100, 0.6) 20%, rgba(255, 220, 150, 0.8) 50%, rgba(255, 200, 100, 0.6) 80%, transparent 100%)' }}
-                    />
-                    <div ref={morningTextRef} className="absolute top-0 left-0 text-[26px] font-bold text-black leading-none whitespace-nowrap opacity-0 translate-y-full flex items-center h-full">
+                    <div
+                        className="animated-item absolute left-0 top-0 whitespace-nowrap opacity-0 text-[20px] sm:text-[22px] font-bold text-black"
+                        style={{
+                            willChange: 'transform, opacity',
+                            transform: 'translateY(100%)',
+                            lineHeight: '32px'
+                        }}
+                    >
                         Good morning, Sharma
                     </div>
-                    <div ref={toiLogoRef} className="absolute top-0 left-0 opacity-0 translate-y-full flex items-center h-full">
-                        <div className="text-[28px] font-bold text-black tracking-wider leading-none font-serif">TOI</div>
+                    <div
+                        className="animated-item absolute left-0 top-0 whitespace-nowrap opacity-0"
+                        style={{
+                            willChange: 'transform, opacity',
+                            transform: 'translateY(100%)',
+                            lineHeight: '32px',
+                            fontFamily: '"Times New Roman", Times, serif'
+                        }}
+                    >
+                        <span className="text-[24px] sm:text-[26px] font-bold text-black tracking-[0.05em]">TOI</span>
                     </div>
                 </div>
 
                 <button
                     type="button"
                     className={cx(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all active:scale-95",
+                        "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all active:scale-95 ml-4",
                         expandedExplore && menuAlign === 'right' ? "bg-black text-white" : "hover:bg-gray-50 text-black"
                     )}
                     aria-label="Explore categories"
@@ -380,10 +314,10 @@ export default function QuickAccessPageV2() {
                     "absolute left-0 right-0 z-30 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
                     expandedExplore ? "opacity-100 pointer-events-auto translate-y-0" : "opacity-0 pointer-events-none -translate-y-4"
                 )}
-                style={{ top: '68px' }}
+                style={{ top: '76px' }}
             >
                 <div className={cx(
-                    "px-6 py-4 flex flex-col gap-3 h-[calc(100dvh-144px)] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] pb-10",
+                    "px-6 py-4 flex flex-col gap-3 h-[calc(100dvh-132px)] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] pb-10",
                     menuAlign === 'right' ? "items-end" : "items-start"
                 )}>
                     {QUICK_ACCESS_ITEMS.map((item, idx) => (
