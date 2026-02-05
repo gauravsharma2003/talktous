@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Menu, X, ChevronDown, ChevronUp, Compass } from 'lucide-react';
+import { Menu, X, Compass } from 'lucide-react';
+import gsap from 'gsap';
 
 function cx(...classes) {
     return classes.filter(Boolean).join(' ');
@@ -97,6 +98,183 @@ export default function QuickAccessPageV2() {
     const pillTimerRef = useRef(null);
     const hasShownPillRef = useRef(false);
 
+    // Animation refs for TOI logo animation
+    const morningTextRef = useRef(null);
+    const toiLogoRef = useRef(null);
+    const wormholeBottomRef = useRef(null);
+    const wormholeTopRef = useRef(null);
+    const animationRef = useRef(null);
+
+    // TOI Logo Animation Effect
+    useEffect(() => {
+        const morningText = morningTextRef.current;
+        const toiLogo = toiLogoRef.current;
+        const wormholeBottom = wormholeBottomRef.current;
+        const wormholeTop = wormholeTopRef.current;
+
+        if (!morningText || !toiLogo || !wormholeBottom || !wormholeTop) return;
+
+        const animate = () => {
+            // Recalculate widths on every loop to ensure accuracy after font loads or resizes
+            const morningWidth = morningText.offsetWidth;
+            const toiWidth = toiLogo.offsetWidth;
+
+            const tl = gsap.timeline();
+
+            // === MORNING TEXT ENTRANCE ===
+            tl.set(wormholeBottom, { width: morningWidth + 'px' });
+            tl.set(morningText, { y: '120%', opacity: 1, scale: 0.95 });
+
+            tl.to(wormholeBottom, {
+                opacity: 1,
+                scaleX: 1.1,
+                duration: 0.25,
+                ease: 'power1.out'
+            });
+
+            tl.to(morningText, {
+                y: -5,
+                scale: 1,
+                duration: 0.5,
+                ease: 'back.out(1.2)'
+            }, '-=0.15');
+
+            tl.to(morningText, {
+                y: 0,
+                duration: 0.2,
+                ease: 'power1.inOut'
+            });
+
+            tl.to(wormholeBottom, {
+                opacity: 0,
+                scaleX: 0.8,
+                duration: 0.35,
+                ease: 'power2.in'
+            }, '-=0.4');
+
+            // Hold for 3 seconds
+            tl.to({}, { duration: 3 });
+
+            // === MORNING TEXT EXIT ===
+            tl.set(wormholeTop, { width: morningWidth + 'px', scaleX: 0.8 });
+
+            tl.to(morningText, {
+                y: 3,
+                duration: 0.12,
+                ease: 'power1.in'
+            });
+
+            tl.to(wormholeTop, {
+                opacity: 1,
+                scaleX: 1.1,
+                duration: 0.25,
+                ease: 'power1.out'
+            }, '-=0.05');
+
+            tl.to(morningText, {
+                y: '-110%',
+                scale: 0.92,
+                duration: 0.5,
+                ease: 'power2.in'
+            }, '-=0.15');
+
+            tl.to(wormholeTop, {
+                opacity: 0,
+                scaleX: 0.8,
+                duration: 0.35,
+                ease: 'power2.in'
+            }, '-=0.35');
+
+            tl.set(morningText, { opacity: 0 });
+
+            // Breathing pause
+            tl.to({}, { duration: 0.15 });
+
+            // === TOI ENTRANCE ===
+            tl.set(wormholeBottom, { width: toiWidth + 'px', scaleX: 0.8 });
+            tl.set(toiLogo, { y: '120%', opacity: 1, scale: 0.93 });
+
+            tl.to(wormholeBottom, {
+                opacity: 1,
+                scaleX: 1.15,
+                duration: 0.25,
+                ease: 'power1.out'
+            });
+
+            tl.to(toiLogo, {
+                y: -8,
+                scale: 1.02,
+                duration: 0.5,
+                ease: 'back.out(1.4)'
+            }, '-=0.15');
+
+            tl.to(toiLogo, {
+                y: 0,
+                scale: 1,
+                duration: 0.25,
+                ease: 'elastic.out(1, 0.6)'
+            });
+
+            tl.to(wormholeBottom, {
+                opacity: 0,
+                scaleX: 0.8,
+                duration: 0.4,
+                ease: 'power2.in'
+            }, '-=0.45');
+
+            // Hold for 3 seconds
+            tl.to({}, { duration: 3 });
+
+            // === TOI EXIT ===
+            tl.set(wormholeTop, { width: toiWidth + 'px', scaleX: 0.8 });
+
+            tl.to(toiLogo, {
+                y: 4,
+                scale: 0.98,
+                duration: 0.13,
+                ease: 'power1.in'
+            });
+
+            tl.to(wormholeTop, {
+                opacity: 1,
+                scaleX: 1.12,
+                duration: 0.25,
+                ease: 'power1.out'
+            }, '-=0.05');
+
+            tl.to(toiLogo, {
+                y: '-115%',
+                scale: 0.9,
+                duration: 0.52,
+                ease: 'power2.in'
+            }, '-=0.15');
+
+            tl.to(wormholeTop, {
+                opacity: 0,
+                scaleX: 0.75,
+                duration: 0.4,
+                ease: 'power2.in'
+            }, '-=0.38');
+
+            tl.set(toiLogo, { opacity: 0 });
+
+            // Final pause before loop
+            tl.to({}, { duration: 0.2 });
+
+            tl.eventCallback('onComplete', animate);
+
+            animationRef.current = tl;
+        };
+
+        animate();
+
+        return () => {
+            if (animationRef.current) {
+                animationRef.current.kill();
+            }
+        };
+    }, []);
+
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
@@ -168,7 +346,7 @@ export default function QuickAccessPageV2() {
                 }}
             >
                 <div
-                    className="flex items-center gap-2 cursor-pointer active:scale-95 transition-transform"
+                    className="relative h-[60px] w-[320px] overflow-hidden cursor-pointer"
                     onClick={() => {
                         const newState = !expandedExplore;
                         setMenuAlign('left');
@@ -176,11 +354,18 @@ export default function QuickAccessPageV2() {
                         if (newState) triggerOrbPill();
                     }}
                 >
-                    <h1 className="text-2xl font-serif font-bold leading-none text-black">TOI</h1>
-                    <ChevronDown className={cx(
-                        "w-5 h-5 text-gray-400 transition-transform duration-500",
-                        expandedExplore && menuAlign === 'left' ? "rotate-180 text-black" : ""
-                    )} />
+                    <div ref={wormholeBottomRef} className="absolute left-0 bottom-0 h-[1px] opacity-0 shadow-[0_0_8px_rgba(255,200,100,0.5)]"
+                        style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 200, 100, 0.6) 20%, rgba(255, 220, 150, 0.8) 50%, rgba(255, 200, 100, 0.6) 80%, transparent 100%)' }}
+                    />
+                    <div ref={wormholeTopRef} className="absolute left-0 top-0 h-[1px] opacity-0 shadow-[0_0_8px_rgba(255,200,100,0.5)]"
+                        style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 200, 100, 0.6) 20%, rgba(255, 220, 150, 0.8) 50%, rgba(255, 200, 100, 0.6) 80%, transparent 100%)' }}
+                    />
+                    <div ref={morningTextRef} className="absolute top-0 left-0 text-[22px] sm:text-[26px] font-medium text-black leading-none whitespace-nowrap opacity-0 translate-y-full flex items-center h-full">
+                        Good morning, Sharma
+                    </div>
+                    <div ref={toiLogoRef} className="absolute top-0 left-0 opacity-0 translate-y-full flex items-center h-full">
+                        <div className="text-[32px] font-bold text-black tracking-wider leading-none font-serif">TOI</div>
+                    </div>
                 </div>
 
                 <button
