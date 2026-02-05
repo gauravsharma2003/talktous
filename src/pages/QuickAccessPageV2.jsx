@@ -122,65 +122,61 @@ export default function QuickAccessPageV2() {
             const tl = gsap.timeline();
 
             // === MORNING TEXT ENTRANCE ===
+            // Set wormhole width and reset morning text
             tl.set(wormholeBottom, { width: morningWidth + 'px' });
-            tl.set(morningText, { y: '120%', opacity: 1, scale: 0.95 });
+            tl.set(morningText, { y: '110%', opacity: 1, scale: 0.98 });
 
+            // Wormhole appears with expansion
             tl.to(wormholeBottom, {
                 opacity: 1,
-                scaleX: 1.1,
+                scaleX: 1.05,
                 duration: 0.25,
-                ease: 'power1.out'
+                ease: 'power2.out'
             });
 
-            tl.to(morningText, {
-                y: -5,
-                scale: 1,
-                duration: 0.5,
-                ease: 'back.out(1.2)'
-            }, '-=0.15');
-
+            // Morning text slides up smoothly
             tl.to(morningText, {
                 y: 0,
-                duration: 0.2,
-                ease: 'power1.inOut'
-            });
+                scale: 1,
+                duration: 0.5,
+                ease: 'power2.out'
+            }, '-=0.15');
 
+            // Wormhole contracts and fades
             tl.to(wormholeBottom, {
                 opacity: 0,
-                scaleX: 0.8,
+                scaleX: 0.9,
                 duration: 0.35,
                 ease: 'power2.in'
-            }, '-=0.4');
+            }, '-=0.3');
 
             // Hold for 3 seconds
             tl.to({}, { duration: 3 });
 
             // === MORNING TEXT EXIT ===
-            tl.set(wormholeTop, { width: morningWidth + 'px', scaleX: 0.8 });
+            // Set wormhole width for exit
+            tl.set(wormholeTop, { width: morningWidth + 'px', scaleX: 0.9 });
 
-            tl.to(morningText, {
-                y: 3,
-                duration: 0.12,
-                ease: 'power1.in'
-            });
-
+            // Wormhole expands at top
             tl.to(wormholeTop, {
                 opacity: 1,
-                scaleX: 1.1,
+                scaleX: 1.05,
                 duration: 0.25,
-                ease: 'power1.out'
-            }, '-=0.05');
+                ease: 'power2.out'
+            });
 
+            // Morning text accelerates upward smoothly
             tl.to(morningText, {
                 y: '-110%',
-                scale: 0.92,
+                scale: 0.96,
                 duration: 0.5,
                 ease: 'power2.in'
             }, '-=0.15');
 
+            // Wormhole fades and contracts
             tl.to(wormholeTop, {
                 opacity: 0,
-                scaleX: 0.8,
+                scaleX: 0.9,
                 duration: 0.35,
                 ease: 'power2.in'
             }, '-=0.35');
@@ -191,76 +187,68 @@ export default function QuickAccessPageV2() {
             tl.to({}, { duration: 0.15 });
 
             // === TOI ENTRANCE ===
-            tl.set(wormholeBottom, { width: toiWidth + 'px', scaleX: 0.8 });
-            tl.set(toiLogo, { y: '120%', opacity: 1, scale: 0.93 });
+            // Set wormhole width and reset TOI
+            tl.set(wormholeBottom, { width: toiWidth + 'px', scaleX: 0.9 });
+            tl.set(toiLogo, { y: '110%', opacity: 1, scale: 0.98 });
 
+            // Wormhole appears with energy
             tl.to(wormholeBottom, {
                 opacity: 1,
-                scaleX: 1.15,
+                scaleX: 1.05,
                 duration: 0.25,
-                ease: 'power1.out'
+                ease: 'power2.out'
             });
 
-            tl.to(toiLogo, {
-                y: -8,
-                scale: 1.02,
-                duration: 0.5,
-                ease: 'back.out(1.4)'
-            }, '-=0.15');
-
+            // TOI rises smoothly
             tl.to(toiLogo, {
                 y: 0,
                 scale: 1,
-                duration: 0.25,
-                ease: 'elastic.out(1, 0.6)'
-            });
+                duration: 0.5,
+                ease: 'power2.out'
+            }, '-=0.15');
 
+            // Wormhole contracts
             tl.to(wormholeBottom, {
                 opacity: 0,
-                scaleX: 0.8,
-                duration: 0.4,
+                scaleX: 0.9,
+                duration: 0.35,
                 ease: 'power2.in'
-            }, '-=0.45');
+            }, '-=0.3');
 
             // Hold for 3 seconds
             tl.to({}, { duration: 3 });
 
             // === TOI EXIT ===
-            tl.set(wormholeTop, { width: toiWidth + 'px', scaleX: 0.8 });
+            // Set wormhole width for TOI exit
+            tl.set(wormholeTop, { width: toiWidth + 'px', scaleX: 0.9 });
 
-            tl.to(toiLogo, {
-                y: 4,
-                scale: 0.98,
-                duration: 0.13,
-                ease: 'power1.in'
-            });
-
+            // Wormhole opens
             tl.to(wormholeTop, {
                 opacity: 1,
-                scaleX: 1.12,
+                scaleX: 1.05,
                 duration: 0.25,
-                ease: 'power1.out'
-            }, '-=0.05');
+                ease: 'power2.out'
+            });
 
+            // TOI accelerates upward smoothly
             tl.to(toiLogo, {
-                y: '-115%',
-                scale: 0.9,
-                duration: 0.52,
+                y: '-110%',
+                scale: 0.96,
+                duration: 0.5,
                 ease: 'power2.in'
             }, '-=0.15');
 
+            // Wormhole fades
             tl.to(wormholeTop, {
                 opacity: 0,
-                scaleX: 0.75,
-                duration: 0.4,
+                scaleX: 0.9,
+                duration: 0.35,
                 ease: 'power2.in'
-            }, '-=0.38');
+            }, '-=0.35');
 
             tl.set(toiLogo, { opacity: 0 });
 
-            // Final pause before loop
-            tl.to({}, { duration: 0.2 });
-
+            // Seamless loop - restart immediately
             tl.eventCallback('onComplete', animate);
 
             animationRef.current = tl;
@@ -360,11 +348,11 @@ export default function QuickAccessPageV2() {
                     <div ref={wormholeTopRef} className="absolute left-0 top-0 h-[1px] opacity-0 shadow-[0_0_8px_rgba(255,200,100,0.5)]"
                         style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255, 200, 100, 0.6) 20%, rgba(255, 220, 150, 0.8) 50%, rgba(255, 200, 100, 0.6) 80%, transparent 100%)' }}
                     />
-                    <div ref={morningTextRef} className="absolute top-0 left-0 text-[22px] sm:text-[26px] font-medium text-black leading-none whitespace-nowrap opacity-0 translate-y-full flex items-center h-full">
+                    <div ref={morningTextRef} className="absolute top-0 left-0 text-[26px] font-bold text-black leading-none whitespace-nowrap opacity-0 translate-y-full flex items-center h-full">
                         Good morning, Sharma
                     </div>
                     <div ref={toiLogoRef} className="absolute top-0 left-0 opacity-0 translate-y-full flex items-center h-full">
-                        <div className="text-[32px] font-bold text-black tracking-wider leading-none font-serif">TOI</div>
+                        <div className="text-[28px] font-bold text-black tracking-wider leading-none font-serif">TOI</div>
                     </div>
                 </div>
 
